@@ -9,7 +9,7 @@ const serverPort = process.env.PORT;
 app.listen(serverPort, () => {
   console.log(`
       ################################################
-      🚀 Server listening on port: ${serverPort} 🚀
+      🚀 Server listening on port: ${parseInt(process.env.PORT)} 🚀
       ################################################
   `);
 });
