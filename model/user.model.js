@@ -25,6 +25,9 @@ const userSchema = mongoose.Schema(
     competition_entry: {
       type: Number,
     },
+    referral_code: {
+      type: String
+    }
   },
   { timestamps: true, versionKey: false }
 );
