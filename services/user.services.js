@@ -128,7 +128,7 @@ exports.top10Winners = async (req, res) => {
 
     res.status(200).json({
       meta_data: {
-        "Total Participants": usersCount,
+        "Total Participants": users.length,
       },
       users,
     });
