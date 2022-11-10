@@ -1,6 +1,5 @@
 //Basic Import
 require("dotenv").config();
-// const router = require("./src/routes/api");
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
@@ -43,12 +42,12 @@ app.use(express.urlencoded({extended: true}));
 // app.use(Limiter);
 
 
-//Routing Implement
-// app.use("/api/v1", router);
+// Routing Implement
+app.use("/api/v1", require('./route/user.route'));
 
 //Undefined Route
 
-app.use("*", (req, res) => {
+app.use((req, res) => {
   res.status(404).json({ status: "failed", message: "Not Found" });
 });
 

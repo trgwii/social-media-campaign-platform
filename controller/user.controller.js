@@ -1,15 +1,14 @@
-const userHandler = (userModel) => {
-  //Registers a new user
+const userHandler = (UserService) => {
+  //Register a new user
   const registerUser = (req, res) => {
     try {
-      const newUser  = userService.createUser(req.body, req.query)
+      const newUser = UserService.createUser(req, res);
 
-      res.json({newUser})
-      
+      return newUser;
     } catch (error) {
-      ErrorHandler(error, res)
+      console.log(error);
+      // ErrorHandler(error, res)
     }
-
   };
 
   //get a user by userId
@@ -32,3 +31,5 @@ const userHandler = (userModel) => {
     deleteAUserById,
   };
 };
+
+module.exports = userHandler;

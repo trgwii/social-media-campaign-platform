@@ -24,6 +24,7 @@ const userSchema = mongoose.Schema(
     },
     competition_entry: {
       type: Number,
+      default: 1
     },
     referral_code: {
       type: String

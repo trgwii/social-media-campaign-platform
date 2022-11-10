@@ -2,18 +2,21 @@ const userModel = require("../model/user.model");
 const argon2 = require("argon2");
 const { ReferalCode } = require("./../utils/referralCodeGenerator");
 
-console.log(ReferalCode(5));
+exports.createUser = async (req, res) => {
+  //get users details
+  const { first_name, last_name, mobile_number, password, email } = req.body;
 
-const createUser = async (user, referal) => {
-  const { first_name, last_name, mobile_number, password, email } = user;
-  const { referal_code } = referal;
+  //get referal code
+  const { refg } = req.query;
 
-  if (!(first_name && last_name && email))
+  //check required fields
+  if (!(first_name && last_name && email && password))
     return res.status(422).json({
       status: "fail",
       message: `Please confirm that [ first_name, last_name and email ] are provided`,
     });
 
+  //check user exist
   const userExist = await userModel.findOne({ email: email });
 
   if (userExist)
@@ -22,12 +25,19 @@ const createUser = async (user, referal) => {
       message: `The email with [ ${email} ] is already registered`,
     });
 
-    //check if there is referal code
+  //check if there is referal code
+  //increment the competition entry for the owner of the referral code entry by 1
+  const referralCodeOwner = await userModel.findOne({ referral_code: refg });
+  const opt = {
+    $inc: { competition_entry: 1 },
+  };
+  console.log(referralCodeOwner);
+  if (referralCodeOwner) {
+    await userModel.updateOne({ _id: referralCodeOwner._id }, opt);
+  }
 
-    //increment the owner of the referral code entry by 1
-
-    //generate a new referral code for the new user
-
+  //generate a new referral code for the new user
+  const referalcode = ReferalCode(5);
   const hash = await argon2.hash(password);
 
   const user = new userModel({
@@ -36,10 +46,18 @@ const createUser = async (user, referal) => {
     mobile_number,
     password: hash,
     email,
-    referral_code,
+    referral_code: referalcode,
   });
 
-   await user.save()
+  await user.save();
 
-   return user
+  let urlPath = req.originalUrl;
+
+  if (urlPath.includes("?")) {
+    urlPath = urlPath.slice(0, urlPath.indexOf("?"));
+  }
+
+  const signupLink = `${req.get("host")}${urlPath}?refg=${user.referral_code}`;
+
+  res.status(201).json({ signupLink });
 };
