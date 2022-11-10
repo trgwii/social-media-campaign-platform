@@ -1,16 +1,15 @@
 const userModel = require("../model/user.model");
-const argon2 = require("argon2");
 const { ReferalCode } = require("./../utils/referralCodeGenerator");
 
 exports.createUser = async (req, res) => {
   //get users details
-  const { first_name, last_name, mobile_number, password, email } = req.body;
+  const { first_name, last_name, mobile_number, email } = req.body;
 
   //get referal code
   const { refg } = req.query;
 
   //check required fields
-  if (!(first_name && last_name && email && password))
+  if (!(first_name && last_name && email))
     return res.status(422).json({
       status: "fail",
       message: `Please confirm that [ first_name, last_name and email ] are provided`,
@@ -31,20 +30,18 @@ exports.createUser = async (req, res) => {
   const opt = {
     $inc: { competition_entry: 1 },
   };
-  console.log(referralCodeOwner);
+
   if (referralCodeOwner) {
     await userModel.updateOne({ _id: referralCodeOwner._id }, opt);
   }
 
   //generate a new referral code for the new user
   const referalcode = ReferalCode(5);
-  const hash = await argon2.hash(password);
 
   const user = new userModel({
     first_name,
     last_name,
     mobile_number,
-    password: hash,
     email,
     referral_code: referalcode,
   });
