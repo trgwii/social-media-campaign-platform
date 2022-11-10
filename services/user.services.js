@@ -15,46 +15,96 @@ exports.createUser = async (req, res) => {
       message: `Please confirm that [ first_name, last_name and email ] are provided`,
     });
 
-  //check user exist
-  const userExist = await userModel.findOne({ email: email });
+  try {
+    //check user exist
+    const userExist = await userModel.findOne({ email: email });
 
-  if (userExist)
-    return res.status(422).json({
-      status: "fail",
-      message: `The email with [ ${email} ] is already registered`,
+    if (userExist)
+      return res.status(422).json({
+        status: "fail",
+        message: `The email with [ ${email} ] is already registered`,
+      });
+
+    //check if there is referal code
+    //increment the competition entry for the owner of the referral code entry by 1
+    const referralCodeOwner = await userModel.findOne({ referral_code: refg });
+    const opt = {
+      $inc: { competition_entry: 1 },
+    };
+
+    if (referralCodeOwner) {
+      await userModel.updateOne({ _id: referralCodeOwner._id }, opt);
+    }
+
+    //generate a new referral code for the new user
+    const referalcode = ReferalCode(5);
+
+    const user = new userModel({
+      first_name,
+      last_name,
+      mobile_number,
+      email,
+      referral_code: referalcode,
     });
 
-  //check if there is referal code
-  //increment the competition entry for the owner of the referral code entry by 1
-  const referralCodeOwner = await userModel.findOne({ referral_code: refg });
-  const opt = {
-    $inc: { competition_entry: 1 },
-  };
+    await user.save();
 
-  if (referralCodeOwner) {
-    await userModel.updateOne({ _id: referralCodeOwner._id }, opt);
+    let urlPath = req.originalUrl;
+
+    if (urlPath.includes("?")) {
+      urlPath = urlPath.slice(0, urlPath.indexOf("?"));
+    }
+
+    const signupLink = `${req.get("host")}${urlPath}?refg=${
+      user.referral_code
+    }`;
+
+    res.status(201).json({ signupLink });
+  } catch (error) {
+    console.log(error);
   }
+};
 
-  //generate a new referral code for the new user
-  const referalcode = ReferalCode(5);
-
-  const user = new userModel({
-    first_name,
-    last_name,
-    mobile_number,
-    email,
-    referral_code: referalcode,
-  });
-
-  await user.save();
-
-  let urlPath = req.originalUrl;
-
-  if (urlPath.includes("?")) {
-    urlPath = urlPath.slice(0, urlPath.indexOf("?"));
+exports.allUsers = async (req, res) => {
+  try {
+    const users = await userModel
+      .find()
+      .select("first_name last_name competition_entry referral_code");
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
   }
+};
 
-  const signupLink = `${req.get("host")}${urlPath}?refg=${user.referral_code}`;
+exports.getAUserbyReferralCode = async (req, res) => {
+  try {
+    const { referral_code } = req.params;
 
-  res.status(201).json({ signupLink });
+    const user = await userModel
+      .findOne({ referral_code })
+      .select("first_name last_name competition_entry referral_code");
+
+    if (!user)
+      return res.status(422).json({
+        status: "fail",
+        message: `No user with the code [ ${referral_code} ]`,
+      });
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.top10Winners = async (req, res) => {
+  try {
+    const users = await userModel
+      .find()
+      .sort({ competition_entry: -1 })
+      .limit(10)
+      .select("first_name last_name competition_entry referral_code");
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+  }
 };

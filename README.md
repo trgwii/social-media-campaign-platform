@@ -96,4 +96,13 @@ Users are allow only one registration for each email
 ![Users are allow only one registration for each email](utils/images/participant_can_only_reg_with_one_email.png)
 
 Succefull registration with referral link
-![Succefull registration with referral link](utils/images/registration_succeful_with_a_referral_link.png)
+![Succefull registration with referral link](utils/images/registration_succeful_with_a_referral_link_.png)
+
+List All Participants
+![List All Participants](utils/images/list_all_participants.png)
+
+Top 10 Winners
+![Top 10 Winners](utils/images/top_10_winners.png)
+
+Get Participant by Referral Code
+![Succefull registration with referral link](utils/images/get_participant_by_referralCode.png)

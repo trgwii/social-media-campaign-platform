@@ -11,11 +11,26 @@ const userHandler = (UserService) => {
     }
   };
 
-  //get a user by userId
-  const getAUserbyId = (req, res) => {};
+  //get a user by referral Code
+  const getAUserbyReferralCode = (req, res) => {
+    const user = UserService.getAUserbyReferralCode(req, res);
+    return user
+  };
 
   //list all registered user
-  const listUsers = (req, res) => {};
+  const allUsers = (req, res) => {
+    const users = UserService.allUsers(req, res);
+    return users;
+  };
+
+  //Show to 10 winners
+  const top10Winners = (req, res) => {
+    const top10Winners = UserService.top10Winners(req, res);
+
+    return top10Winners;
+  };
+
+  //===========   TO-DOS    ===========
 
   //modifies a user's profile
   const updateUserProfileById = async (req, res) => {};
@@ -25,8 +40,9 @@ const userHandler = (UserService) => {
 
   return {
     registerUser,
-    getAUserbyId,
-    listUsers,
+    getAUserbyReferralCode,
+    allUsers,
+    top10Winners,
     updateUserProfileById,
     deleteAUserById,
   };

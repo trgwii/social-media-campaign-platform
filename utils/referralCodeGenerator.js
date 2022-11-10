@@ -11,6 +11,8 @@ exports.ReferalCode = (length) => {
   return result;
 };
 
+//================= TO-DO ==================
+
 //Check if referral code exist
 //if it exist, generate another one
 
