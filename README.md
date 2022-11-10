@@ -66,7 +66,7 @@ This are list of things you need to need to get installed.
 
 This project can be tested using postman, insomnia etc.
 
-\_For more examples, please refer to the [Documentation](https://documenter.getpostman.com/view/7592361/2s8YemtZ88)
+For more examples, please refer to the [Documentation](https://documenter.getpostman.com/view/7592361/2s8YemtZ88)
 
 ## Contributing
 

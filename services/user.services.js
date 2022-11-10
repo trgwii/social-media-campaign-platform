@@ -70,7 +70,21 @@ exports.allUsers = async (req, res) => {
     const users = await userModel
       .find()
       .select("first_name last_name competition_entry referral_code");
-    res.status(200).json(users);
+
+    const usersCount = await userModel.countDocuments();
+
+    if (usersCount < 1)
+      return res.status(200).json({
+        status: "success",
+        message: "No registered participant yet",
+      });
+
+    res.status(200).json({
+      meta_data: {
+        "Total Participants": usersCount,
+      },
+      users,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -103,7 +117,21 @@ exports.top10Winners = async (req, res) => {
       .sort({ competition_entry: -1 })
       .limit(10)
       .select("first_name last_name competition_entry referral_code");
-    res.status(200).json(users);
+
+    const usersCount = await userModel.countDocuments();
+
+    if (usersCount < 1)
+      return res.status(200).json({
+        status: "success",
+        message: "No registered participant yet",
+      });
+
+    res.status(200).json({
+      meta_data: {
+        "Total Participants": usersCount,
+      },
+      users,
+    });
   } catch (error) {
     console.log(error);
   }
