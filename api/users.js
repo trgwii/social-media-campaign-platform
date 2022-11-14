@@ -1,7 +1,7 @@
-const userModel = require("../model/user.model");
-const { ReferalCode } = require("./../utils/referralCodeGenerator");
+const express = require("express");
+const userRouter = express.Router();
 
-exports.createUser = async (req, res) => {
+userRouter.route("/signup").post(async (req, res) => {
   //get users details
   const { first_name, last_name, mobile_number, email } = req.body;
 
@@ -9,21 +9,24 @@ exports.createUser = async (req, res) => {
   const { refg } = req.query;
 
   //check required fields
-  if (!(first_name && last_name && email))
+  if (!(first_name && last_name && email)) {
     return res.status(422).json({
       status: "fail",
-      message: `Please confirm that [ first_name, last_name and email ] are provided`,
+      message:
+        `Please confirm that [ first_name, last_name and email ] are provided`,
     });
+  }
 
   try {
     //check user exist
     const userExist = await userModel.findOne({ email: email });
 
-    if (userExist)
+    if (userExist) {
       return res.status(422).json({
         status: "fail",
         message: `The email with [ ${email} ] is already registered`,
       });
+    }
 
     //check if there is referal code
     //increment the competition entry for the owner of the referral code entry by 1
@@ -55,17 +58,17 @@ exports.createUser = async (req, res) => {
       urlPath = urlPath.slice(0, urlPath.indexOf("?"));
     }
 
-    const signupLink = `${req.get("host")}${urlPath}?refg=${
-      user.referral_code
-    }`;
+    const signupLink = `${
+      req.get("host")
+    }${urlPath}?refg=${user.referral_code}`;
 
     res.status(201).json({ signupLink });
   } catch (error) {
+    // FIXME: This hangs the request, respond with an error status.
     console.log(error);
   }
-};
-
-exports.allUsers = async (req, res) => {
+});
+userRouter.route("/participants").get(async (req, res) => {
   try {
     const users = await userModel
       .find()
@@ -73,11 +76,12 @@ exports.allUsers = async (req, res) => {
 
     const usersCount = await userModel.countDocuments();
 
-    if (usersCount < 1)
+    if (usersCount < 1) {
       return res.status(200).json({
         status: "success",
         message: "No registered participant yet",
       });
+    }
 
     res.status(200).json({
       meta_data: {
@@ -86,31 +90,11 @@ exports.allUsers = async (req, res) => {
       users,
     });
   } catch (error) {
+    // FIXME: This hangs the request, respond with an error status.
     console.log(error);
   }
-};
-
-exports.getAUserbyReferralCode = async (req, res) => {
-  try {
-    const { referral_code } = req.params;
-
-    const user = await userModel
-      .findOne({ referral_code })
-      .select("first_name last_name competition_entry referral_code");
-
-    if (!user)
-      return res.status(422).json({
-        status: "fail",
-        message: `No user with the code [ ${referral_code} ]`,
-      });
-
-    res.status(200).json(user);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-exports.top10Winners = async (req, res) => {
+});
+userRouter.route("/winners").get(async (req, res) => {
   try {
     const users = await userModel
       .find()
@@ -120,11 +104,12 @@ exports.top10Winners = async (req, res) => {
 
     const usersCount = await userModel.countDocuments();
 
-    if (usersCount < 1)
+    if (usersCount < 1) {
       return res.status(200).json({
         status: "success",
         message: "No registered participant yet",
       });
+    }
 
     res.status(200).json({
       meta_data: {
@@ -133,6 +118,30 @@ exports.top10Winners = async (req, res) => {
       users,
     });
   } catch (error) {
+    // FIXME: This hangs the request, respond with an error status.
     console.log(error);
   }
-};
+});
+userRouter.route("/participants/:referral_code").get(async (req, res) => {
+  try {
+    const { referral_code } = req.params;
+
+    const user = await userModel
+      .findOne({ referral_code })
+      .select("first_name last_name competition_entry referral_code");
+
+    if (!user) {
+      return res.status(422).json({
+        status: "fail",
+        message: `No user with the code [ ${referral_code} ]`,
+      });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    // FIXME: This hangs the request, respond with an error status.
+    console.log(error);
+  }
+});
+
+module.exports = userRouter;

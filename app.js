@@ -10,21 +10,19 @@ const app = express();
 const helmet = require("helmet");
 const cors = require("cors");
 
-
 // Security Middleware Implement
 app.use(cors());
 app.use(helmet());
 
 // Logging Middleware
-app.use(morgan("dev"))
+app.use(morgan("dev"));
 
 // Body-Parser Implement
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-
+app.use(express.urlencoded({ extended: true }));
 
 // Routing Implement
-app.use("/api/v1", require('./route/user.route'));
+app.use("/api/v1", require("./api/users"));
 
 //Undefined Route
 app.use((req, res) => {
